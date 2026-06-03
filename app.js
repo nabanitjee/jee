@@ -88,16 +88,6 @@ document
 });
 
 document
-.querySelector(
-"[data-page="${pageId}"]"
-)
-?.classList.add(
-"active-nav"
-);
-
-}
-
-document
 .querySelectorAll(
 ".bottom-nav button"
 )
