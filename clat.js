@@ -422,6 +422,26 @@ function renderClat() {
     `;
 
   }
+function getBestClatDay() {
+
+if (
+appData.clat.length === 0
+)
+return null;
+
+return appData.clat.reduce(
+(best,current)=>
+
+current.total >
+best.total
+
+? current
+
+: best
+
+);
+
+}
 
   container.innerHTML =
     html;
