@@ -323,27 +323,3 @@ saveData();
 renderFutureNotes();
 
 }
-
-{
-
-const note =
-appData.futureNotes.find(
-n => n.id === id
-);
-
-if(!note) return;
-
-note.opened = true;
-
-saveData();
-
-renderFutureNotes();
-
-}
-
-  container.innerHTML =
-    html;
-
-  renderMotivationCard();
-
-}
