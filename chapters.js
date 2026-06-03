@@ -185,7 +185,7 @@ saveData();
 
 const label =
 document.getElementById(
-"pyq-${slugify( chapter )}"
+`pyq-${slugify(chapter)}`
 );
 
 if (label) {
@@ -194,6 +194,9 @@ label.textContent =
   `PYQ Progress: ${value}%`;
 
 }
+renderSubjectProgress?.();
+
+renderMissionBoard?.();
 
 renderLowestPYQList?.();
 
@@ -292,51 +295,50 @@ function getChapterScore(
 chapter
 ) {
 
-let score = 0;
+let statusScore = 0;
 
 switch (
 chapter.status
 ) {
 
 case "weak":
-  score += 25;
-  break;
+statusScore = 25;
+break;
 
 case "average":
-  score += 50;
-  break;
+statusScore = 50;
+break;
 
 case "strong":
-  score += 75;
-  break;
+statusScore = 75;
+break;
 
 case "mastered":
-  score += 100;
-  break;
+statusScore = 100;
+break;
 
 }
 
-score +=
-chapter.pyq * 0.4;
+const pyqScore =
+chapter.pyq || 0;
 
-if (
-chapter.revision1
-)
-score += 10;
+const revisionScore =
 
-if (
-chapter.revision2
-)
-score += 10;
+(
+(chapter.revision1 ? 1 : 0) +
+(chapter.revision2 ? 1 : 0) +
+(chapter.revision3 ? 1 : 0)
 
-if (
-chapter.revision3
-)
-score += 10;
+) / 3 * 100;
 
-return Math.min(
-100,
-Math.round(score)
+return Math.round(
+
+statusScore * 0.4 +
+
+pyqScore * 0.4 +
+
+revisionScore * 0.2
+
 );
 
 }
