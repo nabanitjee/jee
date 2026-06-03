@@ -27,9 +27,9 @@ document.addEventListener(
 function createJournalEntry() {
 
   const date =
-    prompt(
-      "Date (YYYY-MM-DD)"
-    );
+new Date()
+.toISOString()
+.split("T")[0];
 
   if (!date) return;
 
@@ -207,7 +207,7 @@ function renderJournal() {
 
         <p>
           ⏱ Hours:
-          ${entry.hours}
+${entry.hours} hours
         </p>
 
         <p>
