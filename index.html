@@ -308,6 +308,12 @@
 <div id="chapter-grid"></div>
 
   </section>  <!-- JOURNAL -->  <section id="journal-page" class="page"><h2>Daily Journal</h2>
+<input
+id="journal-search"
+type="text"
+placeholder="Search by date..."
+oninput="renderJournal()"
+>
 
 <button id="add-journal-entry">
 
@@ -324,6 +330,32 @@
   Add Mock
 
 </button>
+<div class="card">
+
+<h3>Mock Analytics</h3>
+
+<p>
+Average Score:
+<span id="avg-mock-score">
+0
+</span>
+</p>
+
+<p>
+Best Score:
+<span id="best-mock-score">
+0
+</span>
+</p>
+
+<p>
+Trend:
+<span id="mock-trend">
+No Trend
+</span>
+</p>
+
+</div>
 
 <div id="mock-list"></div>
 
@@ -334,6 +366,17 @@
   Add CLAT Entry
 
 </button>
+<div class="card">
+
+<h3>Best CLAT Day</h3>
+
+<div id="best-clat-day">
+
+No Data
+
+</div>
+
+</div>
 
 <div id="clat-list"></div>
 
