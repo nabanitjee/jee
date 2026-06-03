@@ -55,7 +55,14 @@ const pages =
 document.querySelectorAll(
 ".page"
 );
-function openPage(pageId){
+function openPage(function openPage(pageId){
+
+alert(pageId);
+
+document
+.querySelectorAll(".page")
+.forEach(page=>{
+...){
 
   document
     .querySelectorAll(".page")
