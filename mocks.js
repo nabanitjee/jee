@@ -19,6 +19,8 @@ document.addEventListener(
 
     renderLatestMock();
 
+    renderMockAnalytics();
+
   }
 );
 
@@ -105,9 +107,11 @@ function createMock() {
 
   saveData();
 
-  renderMocks();
+renderMocks();
 
-  renderLatestMock();
+renderLatestMock();
+
+renderMockAnalytics();
 
 }
 
@@ -128,6 +132,8 @@ function deleteMock(
   saveData();
 
   renderMocks();
+  
+  renderMockAnalytics();
 
   renderLatestMock();
 
@@ -201,6 +207,8 @@ function editMock(
   saveData();
 
   renderMocks();
+
+  renderMockAnalytics();
 
   renderLatestMock();
 
@@ -458,5 +466,35 @@ if (diff < 0)
 return `📉 ${diff}`;
 
 return "➖ 0";
+
+}
+function renderMockAnalytics() {
+
+  const avg =
+    document.getElementById(
+      "avg-mock-score"
+    );
+
+  const best =
+    document.getElementById(
+      "best-mock-score"
+    );
+
+  const trend =
+    document.getElementById(
+      "mock-trend"
+    );
+
+  if (!avg || !best || !trend)
+    return;
+
+  avg.textContent =
+    getAverageMockScore();
+
+  best.textContent =
+    getBestMockScore();
+
+  trend.textContent =
+    getLatestMockTrend();
 
 }
