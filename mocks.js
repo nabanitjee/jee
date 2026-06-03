@@ -1,500 +1,315 @@
 // =========================
-// MOCK TEST SYSTEM
+// MOCK TEST SYSTEM V4
 // =========================
 
-document.addEventListener(
-  "DOMContentLoaded",
-  () => {
+let performanceCharts = {};
 
-    document
-      .getElementById(
-        "add-mock-btn"
-      )
-      ?.addEventListener(
-        "click",
-        createMock
-      );
-
-    renderMocks();
-
-    renderLatestMock();
-
-    renderMockAnalytics();
-
-  }
-);
-
-// =========================
-// CREATE MOCK
-// =========================
-
-function createMock() {
-
-  const examName =
-    prompt(
-      "Exam Name"
-    ) || "Mock";
-
-  const maxMarks =
-    prompt(
-      "Maximum Marks"
-    ) || 300;
-
-  const physics =
-    Number(
-      prompt(
-        "Physics Marks"
-      ) || 0
-    );
-
-  const chemistry =
-    Number(
-      prompt(
-        "Chemistry Marks"
-      ) || 0
-    );
-
-  const maths =
-    Number(
-      prompt(
-        "Maths Marks"
-      ) || 0
-    );
-
-  const remarks =
-    prompt(
-      "Remarks"
-    ) || "";
-
-  const errorLog =
-    prompt(
-      "Major Mistakes"
-    ) || "";
-
-  const total =
-    physics +
-    chemistry +
-    maths;
-
-  appData.mocks.push({
-
-    id: Date.now(),
-
-    date:
-      new Date()
-      .toISOString()
-      .split("T")[0],
-
-    examName,
-
-    maxMarks,
-
-    physics,
-
-    chemistry,
-
-    maths,
-
-    total,
-
-    remarks,
-
-    errorLog
-
+document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("add-mock-btn")?.addEventListener("click", showMockForm);
+  
+  // Close modal when clicking background overlay
+  document.getElementById("modal-overlay")?.addEventListener("click", (e) => {
+    if (e.target.id === "modal-overlay") hideModal();
   });
 
-  updateActivity();
+  refreshMockUI();
+});
 
-  saveData();
-
-renderMocks();
-
-renderLatestMock();
-
-renderMockAnalytics();
-
-}
-
-// =========================
-// DELETE MOCK
-// =========================
-
-function deleteMock(
-  id
-) {
-
-  appData.mocks =
-    appData.mocks.filter(
-      mock =>
-        mock.id !== id
-    );
-
-  saveData();
-
+function refreshMockUI() {
   renderMocks();
-  
-  renderMockAnalytics();
-
   renderLatestMock();
-
+  renderMockAnalytics();
+  initMockCharts();
 }
 
 // =========================
-// EDIT MOCK
+// CREATIVE FORM UI CONTROLS
 // =========================
 
-function editMock(
-  id
-) {
+function showModal(htmlContent) {
+  const overlay = document.getElementById("modal-overlay");
+  const contentBox = document.getElementById("modal-content");
+  if (!overlay || !contentBox) return;
 
-  const mock =
-    appData.mocks.find(
-      m => m.id === id
-    );
+  contentBox.innerHTML = htmlContent;
+  overlay.style.display = "flex";
+}
 
-  if (!mock)
-    return;
+function hideModal() {
+  const overlay = document.getElementById("modal-overlay");
+  if (overlay) overlay.style.display = "none";
+}
 
-  mock.physics =
-    Number(
-      prompt(
-        "Physics",
-        mock.physics
-      )
-    );
+function showMockForm(mockId = null) {
+  const isEdit = mockId !== null && typeof mockId !== 'object';
+  let mock = { examName: "", maxMarks: 300, physics: "", chemistry: "", maths: "", remarks: "", errorLog: "" };
 
-  mock.chemistry =
-    Number(
-      prompt(
-        "Chemistry",
-        mock.chemistry
-      )
-    );
+  if (isEdit) {
+    const found = appData.mocks.find(m => m.id === Number(mockId));
+    if (found) mock = found;
+  }
 
-  mock.maths =
-    Number(
-      prompt(
-        "Maths",
-        mock.maths
-      )
-    );
+  const formHTML = `
+    <div class="form-container" style="padding:10px; color:#fff; font-family:sans-serif;">
+      <h3 style="margin-top:0; color:#4dadff;">${isEdit ? "Edit Mock Test Record" : "Enter New Mock Score"}</h3>
+      <hr style="border:0; border-top:1px solid #334; margin-bottom:15px;">
+      
+      <div style="margin-bottom:12px;">
+        <label style="display:block; margin-bottom:5px; font-size:0.9em;">Exam / Mock Title</label>
+        <input type="text" id="f-name" value="${mock.examName}" placeholder="e.g. Allen AIOT 1" style="width:100%; padding:8px; background:#1e293b; border:1px solid #334; color:#fff; border-radius:4px; box-sizing:border-box;">
+      </div>
 
-  mock.maxMarks =
-    Number(
-      prompt(
-        "Max Marks",
-        mock.maxMarks
-      )
-    );
+      <div style="margin-bottom:12px;">
+        <label style="display:block; margin-bottom:5px; font-size:0.9em;">Maximum Scaled Marks</label>
+        <input type="number" id="f-max" value="${mock.maxMarks}" style="width:100%; padding:8px; background:#1e293b; border:1px solid #334; color:#fff; border-radius:4px; box-sizing:border-box;">
+      </div>
 
-  mock.remarks =
-    prompt(
-      "Remarks",
-      mock.remarks
-    );
+      <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-bottom:12px;">
+        <div>
+          <label style="display:block; margin-bottom:5px; font-size:0.85em; color:#ff4d4d;">Physics</label>
+          <input type="number" id="f-p" value="${mock.physics}" placeholder="0" style="width:100%; padding:8px; background:#1e293b; border:1px solid #334; color:#fff; border-radius:4px; box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="display:block; margin-bottom:5px; font-size:0.85em; color:#ffb347;">Chemistry</label>
+          <input type="number" id="f-c" value="${mock.chemistry}" placeholder="0" style="width:100%; padding:8px; background:#1e293b; border:1px solid #334; color:#fff; border-radius:4px; box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="display:block; margin-bottom:5px; font-size:0.85em; color:#4dadff;">Mathematics</label>
+          <input type="number" id="f-m" value="${mock.maths}" placeholder="0" style="width:100%; padding:8px; background:#1e293b; border:1px solid #334; color:#fff; border-radius:4px; box-sizing:border-box;">
+        </div>
+      </div>
 
-  mock.errorLog =
-    prompt(
-      "Error Log",
-      mock.errorLog
-    );
+      <div style="margin-bottom:12px;">
+        <label style="display:block; margin-bottom:5px; font-size:0.9em;">General Remarks</label>
+        <input type="text" id="f-remarks" value="${mock.remarks}" placeholder="How did it go?" style="width:100%; padding:8px; background:#1e293b; border:1px solid #334; color:#fff; border-radius:4px; box-sizing:border-box;">
+      </div>
 
-  mock.total =
-    mock.physics +
-    mock.chemistry +
-    mock.maths;
+      <div style="margin-bottom:18px;">
+        <label style="display:block; margin-bottom:5px; font-size:0.9em;">Major Mistakes (Error Log)</label>
+        <textarea id="f-errors" placeholder="List conceptual or silly errors..." style="width:100%; height:60px; padding:8px; background:#1e293b; border:1px solid #334; color:#fff; border-radius:4px; box-sizing:border-box; resize:vertical;">${mock.errorLog}</textarea>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button onclick="hideModal()" style="background:#475569; color:#fff; border:0; padding:8px 16px; border-radius:4px; cursor:pointer;">Cancel</button>
+        <button onclick="processMockFormSubmit(${isEdit ? mock.id : null})" style="background:#2563eb; color:#fff; border:0; padding:8px 16px; border-radius:4px; cursor:pointer; font-weight:bold;">Save Entry</button>
+      </div>
+    </div>
+  `;
+  showModal(formHTML);
+}
+
+function processMockFormSubmit(existingId = null) {
+  const name = document.getElementById("f-name").value.trim() || "Untitled Mock";
+  const max = Number(document.getElementById("f-max").value) || 300;
+  const p = Number(document.getElementById("f-p").value) || 0;
+  const c = Number(document.getElementById("f-c").value) || 0;
+  const m = Number(document.getElementById("f-m").value) || 0;
+  const rem = document.getElementById("f-remarks").value.trim();
+  const err = document.getElementById("f-errors").value.trim();
+  const calcTotal = p + c + m;
+
+  if (existingId) {
+    // Edit existing execution link
+    const item = appData.mocks.find(mock => mock.id === existingId);
+    if (item) {
+      item.examName = name;
+      item.maxMarks = max;
+      item.physics = p;
+      item.chemistry = c;
+      item.maths = m;
+      item.total = calcTotal;
+      item.remarks = rem;
+      item.errorLog = err;
+    }
+  } else {
+    // Structural pushing entry execution
+    appData.mocks.push({
+      id: Date.now(),
+      date: new Date().toISOString().split("T")[0],
+      examName: name,
+      maxMarks: max,
+      physics: p,
+      chemistry: c,
+      maths: m,
+      total: calcTotal,
+      remarks: rem,
+      errorLog: err
+    });
+    if (typeof updateActivity === "function") updateActivity();
+  }
 
   saveData();
-
-  renderMocks();
-
-  renderMockAnalytics();
-
-  renderLatestMock();
-
+  hideModal();
+  refreshMockUI();
 }
 
 // =========================
-// LATEST MOCK CARD
+// DATA CORRECTION ROUTINES
+// =========================
+
+function deleteMock(id) {
+  appData.mocks = appData.mocks.filter(mock => mock.id !== id);
+  saveData();
+  refreshMockUI();
+}
+
+function editMock(id) {
+  showMockForm(id);
+}
+
+// =========================
+// RENDER OUTLINES
 // =========================
 
 function renderLatestMock() {
+  const box = document.getElementById("latest-mock");
+  if (!box) return;
 
-  const box =
-    document.getElementById(
-      "latest-mock"
-    );
-
-  if (!box)
+  if (appData.mocks.length === 0) {
+    box.innerHTML = "No mocks added yet.";
     return;
-
-  if (
-    appData.mocks.length === 0
-  ) {
-
-    box.innerHTML =
-      "No mocks added yet.";
-
-    return;
-
   }
 
-  const latest =
-    appData.mocks[
-      appData.mocks.length - 1
-    ];
-
+  const latest = appData.mocks[appData.mocks.length - 1];
   box.innerHTML = `
-
-    <strong>
-      ${latest.examName}
-    </strong>
-
-    <br>
-
-    ${latest.total}
-    /
-    ${latest.maxMarks}
-
-    <br>
-
-    P:
-    ${latest.physics}
-
-    |
-    C:
-    ${latest.chemistry}
-
-    |
-    M:
-    ${latest.maths}
-
+    <strong>${latest.examName}</strong><br>
+    ${latest.total} / ${latest.maxMarks}<br>
+    <small style="opacity:0.8;">P: ${latest.physics} | C: ${latest.chemistry} | M: ${latest.maths}</small>
   `;
-
 }
-
-// =========================
-// MOCK LIST
-// =========================
 
 function renderMocks() {
-
-  const container =
-    document.getElementById(
-      "mock-list"
-    );
-
-  if (!container)
-    return;
+  const container = document.getElementById("mock-list");
+  if (!container) return;
 
   let html = "";
+  const sorted = [...appData.mocks].sort((a, b) => b.id - a.id);
 
-  const sorted =
-    [...appData.mocks]
-    .sort(
-      (a,b)=>
-        b.id-a.id
-    );
-
-  sorted.forEach(
-    mock => {
-
-      html += `
-
-      <div class="mock-card">
-
-        <h3>
-          ${mock.examName}
-        </h3>
-
-        <p>
-          📅 ${mock.date}
-        </p>
-
-        <p>
-          🎯
-          ${mock.total}
-          /
-          ${mock.maxMarks}
-        </p>
-        <p>📊
-${Math.round(
-(mock.total/mock.maxMarks)*100
-)}%
-         </p>
-
-        <p>
-          Physics:
-          ${mock.physics}
-        </p>
-
-        <p>
-          Chemistry:
-          ${mock.chemistry}
-        </p>
-
-        <p>
-          Maths:
-          ${mock.maths}
-        </p>
-
-        <p>
-          Remarks:
-          ${mock.remarks}
-        </p>
-
-        <p>
-          Error Log:
-          ${mock.errorLog}
-        </p>
-
-        <div class="action-row">
-
-          <button
-          onclick="
-          editMock(
-          ${mock.id}
-          )">
-
-          Edit
-
-          </button>
-
-          <button
-          onclick="
-          deleteMock(
-          ${mock.id}
-          )">
-
-          Delete
-
-          </button>
-
+  sorted.forEach(mock => {
+    html += `
+      <div class="mock-card" style="border: 1px solid #334; padding: 12px; margin-top: 10px; border-radius: 6px;">
+        <h3 style="margin:0 0 5px 0; color:#4dadff;">${mock.examName}</h3>
+        <p style="margin:3px 0; font-size:0.9em; opacity:0.7;">📅 ${mock.date}</p>
+        <p style="margin:5px 0; font-weight:bold;">🎯 Score: ${mock.total} / ${mock.maxMarks} (${Math.round((mock.total / mock.maxMarks) * 100)}%)</p>
+        <div style="font-size:0.9em; margin: 8px 0; display:flex; gap:15px; opacity:0.9;">
+          <span>P: <strong style="color:#ff4d4d;">${mock.physics}</strong></span>
+          <span>C: <strong style="color:#ffb347;">${mock.chemistry}</strong></span>
+          <span>M: <strong style="color:#4dadff;">${mock.maths}</strong></span>
         </div>
-
+        ${mock.remarks ? `<p style="margin:3px 0; font-size:0.9em;">📝 <em>Remarks: ${mock.remarks}</em></p>` : ""}
+        ${mock.errorLog ? `<p style="margin:3px 0; font-size:0.9em; color:#ff7a7a;">⚠️ <em>Errors: ${mock.errorLog}</em></p>` : ""}
+        <div class="action-row" style="margin-top:10px; display:flex; gap:10px;">
+          <button onclick="editMock(${mock.id})" style="padding:4px 10px; background:#334; color:#fff; border:0; border-radius:4px; cursor:pointer;">Edit</button>
+          <button onclick="deleteMock(${mock.id})" style="padding:4px 10px; background:#b91c1c; color:#fff; border:0; border-radius:4px; cursor:pointer;">Delete</button>
+        </div>
       </div>
-
-      `;
-
-    }
-  );
-
-  if (!html) {
-
-    html = `
-
-    <div class="card">
-
-      No Mock Tests Added
-
-    </div>
-
     `;
+  });
 
-  }
-
-  container.innerHTML =
-    html;
-
+  container.innerHTML = html || `<div class="card">No Mock Tests Added</div>`;
 }
 
 // =========================
-// ANALYTICS HELPERS
+// ANALYTICS & AVERAGES
 // =========================
 
+function getSubjectAverage(subjectKey) {
+  if (appData.mocks.length === 0) return 0;
+  const sum = appData.mocks.reduce((acc, m) => acc + (m[subjectKey] || 0), 0);
+  return Math.round(sum / appData.mocks.length);
+}
+
 function getAverageMockScore() {
-
-  if (
-    appData.mocks.length === 0
-  )
-    return 0;
-
-  const total =
-    appData.mocks.reduce(
-      (sum,m)=>
-        sum+m.total,
-      0
-    );
-
-  return Math.round(
-    total /
-    appData.mocks.length
-  );
-
+  if (appData.mocks.length === 0) return 0;
+  return Math.round(appData.mocks.reduce((sum, m) => sum + m.total, 0) / appData.mocks.length);
 }
 
 function getBestMockScore() {
-
-  if (
-    appData.mocks.length === 0
-  )
-    return 0;
-
-  return Math.max(
-    ...appData.mocks.map(
-      m=>m.total
-    )
-  );
-
+  if (appData.mocks.length === 0) return 0;
+  return Math.max(...appData.mocks.map(m => m.total));
 }
 
 function getLatestMockTrend() {
-
-if (
-appData.mocks.length < 2
-)
-return "No Trend";
-
-const latest =
-appData.mocks[
-appData.mocks.length - 1
-];
-
-const previous =
-appData.mocks[
-appData.mocks.length - 2
-];
-
-const diff =
-latest.total -
-previous.total;
-
-if (diff > 0)
-return `📈 +${diff}`;
-
-if (diff < 0)
-return `📉 ${diff}`;
-
-return "➖ 0";
-
+  if (appData.mocks.length < 2) return "No Trend";
+  const latest = appData.mocks[appData.mocks.length - 1];
+  const previous = appData.mocks[appData.mocks.length - 2];
+  const diff = latest.total - previous.total;
+  return diff > 0 ? `📈 +${diff}` : diff < 0 ? `📉 ${diff}` : "➖ 0";
 }
+
 function renderMockAnalytics() {
+  const avg = document.getElementById("avg-mock-score");
+  const best = document.getElementById("best-mock-score");
+  const trend = document.getElementById("mock-trend");
+  const pAvg = document.getElementById("avg-p-score");
+  const cAvg = document.getElementById("avg-c-score");
+  const mAvg = document.getElementById("avg-m-score");
 
-  const avg =
-    document.getElementById(
-      "avg-mock-score"
-    );
-
-  const best =
-    document.getElementById(
-      "best-mock-score"
-    );
-
-  const trend =
-    document.getElementById(
-      "mock-trend"
-    );
-
-  if (!avg || !best || !trend)
-    return;
-
-  avg.textContent =
-    getAverageMockScore();
-
-  best.textContent =
-    getBestMockScore();
-
-  trend.textContent =
-    getLatestMockTrend();
-
+  if (avg) avg.textContent = getAverageMockScore();
+  if (best) best.textContent = getBestMockScore();
+  if (trend) trend.textContent = getLatestMockTrend();
+  if (pAvg) pAvg.textContent = getSubjectAverage("physics");
+  if (cAvg) cAvg.textContent = getSubjectAverage("chemistry");
+  if (mAvg) mAvg.textContent = getSubjectAverage("maths");
 }
+
+// =========================
+// DATA CHART GENERATORS
+// =========================
+
+function buildSingleChart(ctxId, labelText, dataPoints, strokeColor) {
+  const canvas = document.getElementById(ctxId);
+  if (!canvas) return;
+
+  // Kill existing chart footprint to ensure re-render stability
+  if (performanceCharts[ctxId]) {
+    performanceCharts[ctxId].destroy();
+  }
+
+  // Sort chronologically by entry timeline for graphs
+  const orderedData = [...appData.mocks].sort((a, b) => a.id - b.id);
+  const labels = orderedData.map(m => m.date);
+  const points = orderedData.map(m => dataPoints(m));
+
+  performanceCharts[ctxId] = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: labelText,
+        data: points,
+        borderColor: strokeColor,
+        backgroundColor: strokeColor + '15',
+        borderWidth: 2,
+        tension: 0.2,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend: { labels: { color: '#fff' } } },
+      scales: {
+        x: { ticks: { color: '#fff' }, grid: { color: '#223' } },
+        y: { ticks: { color: '#fff' }, grid: { color: '#223' } }
+      }
+    }
+  });
+}
+
+function initMockCharts() {
+  if (typeof Chart === "undefined" || appData.mocks.length === 0) return;
+  
+  buildSingleChart('chart-overall', 'Overall Performance Trend', m => m.total, '#4dadff');
+  buildSingleChart('chart-physics', 'Physics History', m => m.physics, '#ff4d4d');
+  buildSingleChart('chart-chemistry', 'Chemistry History', m => m.chemistry, '#ffb347');
+  buildSingleChart('chart-maths', 'Mathematics History', m => m.maths, '#4dff4d');
+}
+
+// =========================
+// EXPOSE INTERFACE HOOKS
+// =========================
+window.showMockForm = showMockForm;
+window.processMockFormSubmit = processMockFormSubmit;
+window.editMock = editMock;
+window.deleteMock = deleteMock;
+window.hideModal = hideModal;
