@@ -165,6 +165,8 @@ renderSubjectProgress?.();
 
 renderLowestPYQList?.();
 
+renderMissionBoard?.();
+
 }
 
 // =========================
