@@ -744,9 +744,8 @@ subject => {
 
 );
 
-renderFilterCounts();
+container.innerHTML = html;
 
-container.innerHTML =
-html;
+renderFilterCounts();
 
 }
