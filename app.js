@@ -61,7 +61,11 @@ function openPage(pageId) {
 
 document.querySelectorAll(".bottom-nav button").forEach(btn => {
   btn.addEventListener("click", () => {
-    openPage(btn.dataset.page);
+    const targetPage = btn.dataset.page;
+    openPage(targetPage);
+    
+    // STANDARDIZED ADDITION: Bookmark the active page to persist through reloads
+    sessionStorage.setItem("active_page_v3", targetPage);
   });
 });
 
@@ -201,7 +205,7 @@ function renderStatusCounts() {
   Object.values(appData.chapters).forEach(ch => {
     switch (ch.status) {
       case "weak": 
-        weak++; // <--- FIXED: Now correctly increments weak instead of mastered!
+        weak++; 
         break; 
       case "average": 
         average++; 
@@ -215,7 +219,6 @@ function renderStatusCounts() {
     }
   });
 
-  // Safe DOM assignments
   const wEl = document.getElementById("weak-count");
   const aEl = document.getElementById("average-count");
   const sEl = document.getElementById("strong-count");
@@ -288,7 +291,6 @@ function generateQuest() {
 // INIT
 // =========================
 
-// Wrap complete bootstrapping execution safely in a DOM listener block
 document.addEventListener("DOMContentLoaded", () => {
   updateActivity();
   updateCountdowns();
@@ -299,7 +301,10 @@ document.addEventListener("DOMContentLoaded", () => {
   renderFutureWidget();
   renderMissionBoard();
   generateQuest();
-  openPage("dashboard-page");
+
+  // STANDARDIZED ADDITION: Fallback smoothly to dashboard-page if no session cookie exists
+  const savedPage = sessionStorage.getItem("active_page_v3") || "dashboard-page";
+  openPage(savedPage);
 });
 
 // Maintain backup asynchronous fallback render bindings
@@ -312,3 +317,5 @@ setTimeout(() => {
 window.appData = appData;
 window.saveData = saveData;
 window.updateActivity = updateActivity;
+window.renderStatusCounts = renderStatusCounts;
+window.renderPrepIndex = renderPrepIndex;
