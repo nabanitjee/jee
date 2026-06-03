@@ -3,34 +3,23 @@
 // =========================
 
 document.addEventListener(
-"DOMContentLoaded",
-() => {
+  "DOMContentLoaded",
+  () => {
+    // Standard initialization safeguard
+    if (!appData.dailyQuest) {
+      appData.dailyQuest = {
+        task1: "",
+        task2: "",
+        task3: "",
+        done1: false,
+        done2: false,
+        done3: false
+      };
+      saveData();
+    }
 
-if (!appData.dailyQuest) {
-
-  appData.dailyQuest = {
-
-    task1: "",
-
-    task2: "",
-
-    task3: "",
-
-    done1: false,
-
-    done2: false,
-
-    done3: false
-
-  };
-
-  saveData();
-
-}
-
-renderQuest();
-
-}
+    renderQuest();
+  }
 );
 
 // =========================
@@ -38,33 +27,23 @@ renderQuest();
 // =========================
 
 function editQuest() {
+  // Capture inputs safely so pressing "Cancel" doesn't wipe existing tasks
+  const res1 = prompt("Task 1", appData.dailyQuest.task1);
+  if (res1 !== null) appData.dailyQuest.task1 = res1 || "";
 
-appData.dailyQuest.task1 =
-prompt(
-"Task 1",
-appData.dailyQuest.task1
-) || "";
+  const res2 = prompt("Task 2", appData.dailyQuest.task2);
+  if (res2 !== null) appData.dailyQuest.task2 = res2 || "";
 
-appData.dailyQuest.task2 =
-prompt(
-"Task 2",
-appData.dailyQuest.task2
-) || "";
+  const res3 = prompt("Task 3", appData.dailyQuest.task3);
+  if (res3 !== null) appData.dailyQuest.task3 = res3 || "";
 
-appData.dailyQuest.task3 =
-prompt(
-"Task 3",
-appData.dailyQuest.task3
-) || "";
+  // Reset completion states upon editing a new slate of tasks
+  appData.dailyQuest.done1 = false;
+  appData.dailyQuest.done2 = false;
+  appData.dailyQuest.done3 = false;
 
-appData.dailyQuest.done1 = false;
-appData.dailyQuest.done2 = false;
-appData.dailyQuest.done3 = false;
-
-saveData();
-
-renderQuest();
-
+  saveData();
+  renderQuest();
 }
 
 // =========================
@@ -72,17 +51,13 @@ renderQuest();
 // =========================
 
 function toggleQuest(taskNo) {
+  const key = "done" + taskNo;
+  
+  // Directly flip the targeted boolean state
+  appData.dailyQuest[key] = !appData.dailyQuest[key];
 
-const key =
-"done" + taskNo;
-
-appData.dailyQuest[key] =
-!appData.dailyQuest[key];
-
-saveData();
-
-renderQuest();
-
+  saveData();
+  renderQuest();
 }
 
 // =========================
@@ -90,78 +65,37 @@ renderQuest();
 // =========================
 
 function renderQuest() {
+  const box = document.getElementById("quest-list");
+  if (!box) return;
 
-const box =
-document.getElementById(
-"quest-list"
-);
+  box.innerHTML = `
+    <div>
+      <p onclick="toggleQuest(1)" style="cursor: pointer; user-select: none; margin: 8px 0;">
+        ${appData.dailyQuest.done1 ? "✅" : "⬜"} 
+        ${appData.dailyQuest.task1 || "No Task"}
+      </p>
 
-if (!box) return;
+      <p onclick="toggleQuest(2)" style="cursor: pointer; user-select: none; margin: 8px 0;">
+        ${appData.dailyQuest.done2 ? "✅" : "⬜"} 
+        ${appData.dailyQuest.task2 || "No Task"}
+      </p>
 
-box.innerHTML = `
+      <p onclick="toggleQuest(3)" style="cursor: pointer; user-select: none; margin: 8px 0;">
+        ${appData.dailyQuest.done3 ? "✅" : "⬜"} 
+        ${appData.dailyQuest.task3 || "No Task"}
+      </p>
 
-  <div><p onclick="toggleQuest(1)">
-
-  ${
-    appData.dailyQuest.done1
-    ? "✅"
-    : "⬜"
-  }
-
-  ${
-    appData.dailyQuest.task1
-    || "No Task"
-  }
-
-</p>
-
-<p onclick="toggleQuest(2)">
-
-  ${
-    appData.dailyQuest.done2
-    ? "✅"
-    : "⬜"
-  }
-
-  ${
-    appData.dailyQuest.task2
-    || "No Task"
-  }
-
-</p>
-
-<p onclick="toggleQuest(3)">
-
-  ${
-    appData.dailyQuest.done3
-    ? "✅"
-    : "⬜"
-  }
-
-  ${
-    appData.dailyQuest.task3
-    || "No Task"
-  }
-
-</p>
-
-<button
-onclick="editQuest()">
-
-  Edit Quest
-
-</button>
-
-  </div>`;
-
+      <button onclick="editQuest()" style="margin-top: 10px;">
+        Edit Quest
+      </button>
+    </div>
+  `;
 }
 
 // =========================
-// GLOBAL
+// GLOBAL BINDINGS
 // =========================
-
-window.editQuest =
-editQuest;
-
-window.toggleQuest =
-toggleQuest;
+// Ensures absolute cross-file execution and HTML inline accessibility
+window.editQuest = editQuest;
+window.toggleQuest = toggleQuest;
+window.renderQuest = renderQuest;
