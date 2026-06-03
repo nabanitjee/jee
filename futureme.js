@@ -10,6 +10,7 @@ document.addEventListener(
       ?.addEventListener("click", createFutureNote);
 
     renderFutureNotes();
+    renderMotivationCard(); // Renders the dashboard widget on page load
   }
 );
 
@@ -35,6 +36,7 @@ function createFutureNote() {
   updateActivity();
   saveData();
   renderFutureNotes();
+  renderMotivationCard(); // Updates dashboard if a new unread note is added
 }
 
 // =========================
@@ -48,6 +50,7 @@ function deleteFutureNote(id) {
 
   saveData();
   renderFutureNotes();
+  renderMotivationCard(); // Updates dashboard in case the active note was deleted
 }
 
 // =========================
@@ -66,6 +69,7 @@ function editFutureNote(id) {
 
   saveData();
   renderFutureNotes();
+  renderMotivationCard(); // Updates dashboard if the currently displayed note was edited
 }
 
 // =========================
@@ -91,22 +95,5 @@ function renderMotivationCard() {
 
   if (!target) return;
 
-  const notes = appData.futureNotes.filter(
-    n => !n.opened
-  );
-
-  const note = notes.length
-    ? notes[Math.floor(Math.random() * notes.length)]
-    : getRandomFutureNote();
-
-  if (!note) {
-    target.innerHTML = `No Future Notes Yet`;
-    return;
-  }
-
-  target.innerHTML = `
-    <strong>${note.title}</strong>
-    <br><br>
-    ${note.message}
-  `;
-}
+  // Crucial Fix: Filter out notes that are already opened
+  const notes = appData.futureNotes
