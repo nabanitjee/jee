@@ -1,21 +1,304 @@
 <!DOCTYPE html>
-<html><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>JEE OS</title>
-<link rel="stylesheet" href="style.css">
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JEE OS</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <script defer src="syllabus.js"></script>
+  <script defer src="app.js"></script>
+  <script defer src="chapters.js"></script>
+  <script defer src="journal.js"></script>
+  <script defer src="mocks.js"></script>
+  <script defer src="clat.js"></script>
+  <script defer src="futureme.js"></script>
+  <script defer src="backup.js"></script>
 </head>
+
 <body>
-<header class="hero">
-<h1>JEE OS</h1>
-<p id="countdown">Loading...</p>
-</header>
-<nav class="bottom">
-<button>Dashboard</button><button>Chapters</button><button>Journal</button><button>Mocks</button>
-</nav>
-<main>
-<div class="card"><h2>Mission January</h2><p>Foundation build of JEE OS.</p></div>
-<div class="card"><input id="search" placeholder="Search chapter..."></div>
-</main>
-<script src="syllabus.js"></script>
-<script src="app.js"></script>
-</body></html>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard-page" class="page active">
+
+    <header class="hero">
+      <h1>JEE OS</h1>
+
+      <div class="countdown-container">
+        <div class="countdown-card">
+          <h3>JEE Main</h3>
+          <p id="jee-main-countdown">--</p>
+        </div>
+
+        <div class="countdown-card">
+          <h3>JEE Advanced</h3>
+          <p id="jee-advanced-countdown">--</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="stats-grid">
+
+      <div class="stat-card weak">
+        <h2 id="weak-count">0</h2>
+        <p>Weak</p>
+      </div>
+
+      <div class="stat-card average">
+        <h2 id="average-count">0</h2>
+        <p>Average</p>
+      </div>
+
+      <div class="stat-card strong">
+        <h2 id="strong-count">0</h2>
+        <p>Strong</p>
+      </div>
+
+      <div class="stat-card mastered">
+        <h2 id="mastered-count">0</h2>
+        <p>Mastered</p>
+      </div>
+
+    </div>
+
+    <div class="card">
+      <h2>Preparation Index</h2>
+      <div class="progress-bar">
+        <div id="prep-progress"></div>
+      </div>
+      <span id="prep-percent">0%</span>
+    </div>
+
+    <div class="card">
+      <h2>Latest Mock</h2>
+      <div id="latest-mock">
+        No mocks added yet.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>CLAT This Week</h2>
+      <div id="clat-week-hours">
+        0 Hours
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Today's Quest</h2>
+
+      <div id="quest-list">
+        No quest generated.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Danger Zone</h2>
+
+      <div id="danger-zone-list">
+      </div>
+    </div>
+
+  </section>
+
+  <!-- CHAPTERS -->
+  <section id="chapters-page" class="page">
+
+    <div class="page-header">
+      <h2>Chapters</h2>
+    </div>
+
+    <input
+      id="chapter-search"
+      type="text"
+      placeholder="Search chapters..."
+    >
+
+    <div class="filter-row">
+
+      <button class="filter-btn" data-filter="all">All</button>
+
+      <button class="filter-btn" data-filter="weak">Weak</button>
+
+      <button class="filter-btn" data-filter="average">Average</button>
+
+      <button class="filter-btn" data-filter="strong">Strong</button>
+
+      <button class="filter-btn" data-filter="mastered">Mastered</button>
+
+    </div>
+
+    <div class="card">
+
+      <h3>Add Custom Chapter</h3>
+
+      <input
+        id="custom-chapter-name"
+        placeholder="Chapter Name"
+      >
+
+      <select id="custom-chapter-subject">
+
+        <option>Physics</option>
+
+        <option>Chemistry</option>
+
+        <option>Mathematics</option>
+
+      </select>
+
+      <button id="add-custom-chapter-btn">
+        Add Chapter
+      </button>
+
+    </div>
+
+    <div id="chapter-grid"></div>
+
+  </section>
+
+  <!-- JOURNAL -->
+  <section id="journal-page" class="page">
+
+    <h2>Daily Journal</h2>
+
+    <button id="add-journal-entry">
+      Add Entry
+    </button>
+
+    <div id="journal-list"></div>
+
+  </section>
+
+  <!-- MOCKS -->
+  <section id="mock-page" class="page">
+
+    <h2>Mock Tests</h2>
+
+    <button id="add-mock-btn">
+      Add Mock
+    </button>
+
+    <div id="mock-list"></div>
+
+  </section>
+
+  <!-- CLAT -->
+  <section id="clat-page" class="page">
+
+    <h2>CLAT Tracker</h2>
+
+    <button id="add-clat-btn">
+      Add CLAT Entry
+    </button>
+
+    <div id="clat-list"></div>
+
+  </section>
+
+  <!-- FUTURE ME -->
+  <section id="future-page" class="page">
+
+    <h2>Future Me</h2>
+
+    <button id="add-future-note-btn">
+      Add Note
+    </button>
+
+    <div id="future-note-list"></div>
+
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="settings-page" class="page">
+
+    <h2>Settings</h2>
+
+    <div class="card">
+
+      <h3>Theme</h3>
+
+      <select id="theme-selector">
+
+        <option value="blue">
+          Dark Blue
+        </option>
+
+        <option value="purple">
+          Dark Purple
+        </option>
+
+        <option value="green">
+          Dark Green
+        </option>
+
+      </select>
+
+    </div>
+
+    <div class="card">
+
+      <h3>Dates</h3>
+
+      <input
+        id="jee-main-date"
+        type="date"
+      >
+
+      <input
+        id="jee-advanced-date"
+        type="date"
+      >
+
+    </div>
+
+    <div class="card">
+
+      <button id="export-btn">
+        Export Backup
+      </button>
+
+      <button id="import-btn">
+        Import Backup
+      </button>
+
+    </div>
+
+  </section>
+
+  <!-- BOTTOM NAV -->
+
+  <nav class="bottom-nav">
+
+    <button data-page="dashboard-page">
+      Home
+    </button>
+
+    <button data-page="chapters-page">
+      Chapters
+    </button>
+
+    <button data-page="journal-page">
+      Journal
+    </button>
+
+    <button data-page="mock-page">
+      Mocks
+    </button>
+
+    <button data-page="clat-page">
+      CLAT
+    </button>
+
+    <button data-page="future-page">
+      Future
+    </button>
+
+    <button data-page="settings-page">
+      Settings
+    </button>
+
+  </nav>
+
+</body>
+</html>
