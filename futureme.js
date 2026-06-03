@@ -307,8 +307,22 @@ note.opened
     `;
 
   }
-function markFutureNoteOpened(
-id
+function markFutureNoteOpened(id){
+
+const note =
+appData.futureNotes.find(
+n => n.id === id
+);
+
+if(!note) return;
+
+note.opened = true;
+
+saveData();
+
+renderFutureNotes();
+
+}
 ){
 
 const note =
