@@ -189,7 +189,7 @@ function renderPrepIndex() {
 }
 
 // =========================
-// STATUS COUNTS
+// STATUS COUNTS (Fixed Math)
 // =========================
 
 function renderStatusCounts() {
@@ -200,14 +200,22 @@ function renderStatusCounts() {
 
   Object.values(appData.chapters).forEach(ch => {
     switch (ch.status) {
-      case "weak": mastered++; break; // Preserved your variable structure logic mappings
-      case "average": average++; break;
-      case "strong": strong++; break;
-      case "mastered": mastered++; break;
+      case "weak": 
+        weak++; // <--- FIXED: Now correctly increments weak instead of mastered!
+        break; 
+      case "average": 
+        average++; 
+        break;
+      case "strong": 
+        strong++; 
+        break;
+      case "mastered": 
+        mastered++; 
+        break;
     }
   });
 
-  // FIXED: Wrapped element updates in defensive checks to prevent compilation crash
+  // Safe DOM assignments
   const wEl = document.getElementById("weak-count");
   const aEl = document.getElementById("average-count");
   const sEl = document.getElementById("strong-count");
