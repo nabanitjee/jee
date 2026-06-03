@@ -1,0 +1,7 @@
+
+body{margin:0;font-family:system-ui;background:#0b1020;color:#fff}
+.hero{padding:24px;text-align:center;background:linear-gradient(135deg,#111827,#1e293b)}
+.card{margin:12px;padding:16px;border-radius:18px;background:#151c35}
+.bottom{position:fixed;bottom:0;left:0;right:0;display:flex;justify-content:space-around;background:#111827;padding:10px}
+button,input{padding:10px;border-radius:10px;border:none}
+main{padding-bottom:80px}
