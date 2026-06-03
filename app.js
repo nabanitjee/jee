@@ -55,6 +55,36 @@ const pages =
 document.querySelectorAll(
 ".page"
 );
+function openPage(pageId){
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page=>{
+      page.style.display="none";
+      page.classList.remove("active");
+    });
+
+  const target =
+    document.getElementById(pageId);
+
+  if(target){
+    target.style.display="block";
+    target.classList.add("active");
+  }
+
+  document
+    .querySelectorAll(".bottom-nav button")
+    .forEach(btn=>{
+      btn.classList.remove("active-nav");
+    });
+
+  document
+    .querySelector(
+      `[data-page="${pageId}"]`
+    )
+    ?.classList.add("active-nav");
+
+}
 
 document
 .querySelectorAll(
