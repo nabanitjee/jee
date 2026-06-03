@@ -171,16 +171,46 @@ function getSubjectCounts() {
 
   return result;
 }
+function renderChapterCounts() {
 
+  const counts =
+    getSubjectCounts();
+
+  const el =
+    document.getElementById(
+      "chapter-counts"
+    );
+
+  if (!el) return;
+
+  el.innerHTML = `
+    <small>
+      P:${counts.Physics}
+      |
+      C:${counts.Chemistry}
+      |
+      M:${counts.Mathematics}
+    </small>
+  `;
+
+}
 // =========================
 // STARTUP
 // =========================
 
 // Safe DOM initialization using standard events instead of arbitrary timeouts
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener(
+"DOMContentLoaded",
+() => {
+
   initializeSyllabus();
+
   renderLowestPYQList();
+
   renderSubjectProgress();
+
+  renderChapterCounts();
+
 });
 
 // =========================
