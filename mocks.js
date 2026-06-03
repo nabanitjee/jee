@@ -309,6 +309,11 @@ function renderMocks() {
           /
           ${mock.maxMarks}
         </p>
+        <p>📊
+${Math.round(
+(mock.total/mock.maxMarks)*100
+)}%
+         </p>
 
         <p>
           Physics:
@@ -422,5 +427,36 @@ function getBestMockScore() {
       m=>m.total
     )
   );
+
+}
+
+function getLatestMockTrend() {
+
+if (
+appData.mocks.length < 2
+)
+return "No Trend";
+
+const latest =
+appData.mocks[
+appData.mocks.length - 1
+];
+
+const previous =
+appData.mocks[
+appData.mocks.length - 2
+];
+
+const diff =
+latest.total -
+previous.total;
+
+if (diff > 0)
+return `📈 +${diff}`;
+
+if (diff < 0)
+return `📉 ${diff}`;
+
+return "➖ 0";
 
 }
