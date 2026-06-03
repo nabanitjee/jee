@@ -41,18 +41,22 @@ function createFutureNote() {
 
   appData.futureNotes.push({
 
-    id: Date.now(),
+id: Date.now(),
 
-    title,
+title,
 
-    message,
+message,
 
-    date:
-      new Date()
-      .toISOString()
-      .split("T")[0]
+createdDate:
+new Date()
+.toISOString()
+.split("T")[0],
 
-  });
+targetDate: "",
+
+opened: false
+
+});
 
   updateActivity();
 
@@ -155,8 +159,20 @@ function renderMotivationCard() {
   if (!target)
     return;
 
-  const note =
-    getRandomFutureNote();
+  const notes =
+appData.futureNotes.filter(
+n => !n.opened
+);
+
+const note =
+notes.length
+? notes[
+Math.floor(
+Math.random() *
+notes.length
+)
+]
+: getRandomFutureNote();
 
   if (!note) {
 
@@ -217,8 +233,18 @@ function renderFutureNotes() {
         </h3>
 
         <small>
-          ${note.date}
-        </small>
+
+${note.createdDate || note.date}
+
+<br>
+
+${
+note.opened
+? "✅ Opened"
+: "🔒 Sealed"
+}
+
+       </small>
 
         <p
         style="
@@ -229,27 +255,37 @@ function renderFutureNotes() {
 
         <div class="action-row">
 
-          <button
-          onclick="
-          editFutureNote(
-          ${note.id}
-          )">
+  <button
+  onclick="
+  markFutureNoteOpened(
+  ${note.id}
+  )">
 
-          Edit
+  Open
 
-          </button>
+  </button>
 
-          <button
-          onclick="
-          deleteFutureNote(
-          ${note.id}
-          )">
+  <button
+  onclick="
+  editFutureNote(
+  ${note.id}
+  )">
 
-          Delete
+  Edit
 
-          </button>
+  </button>
 
-        </div>
+  <button
+  onclick="
+  deleteFutureNote(
+  ${note.id}
+  )">
+
+  Delete
+
+  </button>
+
+</div>
 
       </div>
 
@@ -271,6 +307,24 @@ function renderFutureNotes() {
     `;
 
   }
+function markFutureNoteOpened(
+id
+){
+
+const note =
+appData.futureNotes.find(
+n => n.id === id
+);
+
+if(!note) return;
+
+note.opened = true;
+
+saveData();
+
+renderFutureNotes();
+
+}
 
   container.innerHTML =
     html;
