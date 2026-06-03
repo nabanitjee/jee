@@ -1,476 +1,692 @@
 // =========================
-// CHAPTER SYSTEM
+// CHAPTER SYSTEM V3
 // =========================
 
 let currentFilter = "all";
 
 // =========================
-// FILTER BUTTONS
+// INIT
 // =========================
 
 document.addEventListener(
-  "DOMContentLoaded",
-  () => {
+"DOMContentLoaded",
+() => {
 
-    document
-      .querySelectorAll(
-        ".filter-btn"
-      )
-      .forEach(btn => {
+document
+  .querySelectorAll(
+    ".filter-btn"
+  )
+  .forEach(btn => {
 
-        btn.addEventListener(
-          "click",
-          () => {
+    btn.addEventListener(
+      "click",
+      () => {
 
-            currentFilter =
-              btn.dataset.filter;
+        currentFilter =
+          btn.dataset.filter;
 
-            renderChapters();
+        renderChapters();
 
-          }
-        );
+      }
+    );
 
-      });
+  });
 
-    document
-      .getElementById(
-        "chapter-search"
-      )
-      ?.addEventListener(
-        "input",
-        renderChapters
-      );
+document
+  .getElementById(
+    "chapter-search"
+  )
+  ?.addEventListener(
+    "input",
+    renderChapters
+  );
 
-    document
-      .getElementById(
-        "add-custom-chapter-btn"
-      )
-      ?.addEventListener(
-        "click",
-        addCustomChapter
-      );
+document
+  .getElementById(
+    "add-custom-chapter-btn"
+  )
+  ?.addEventListener(
+    "click",
+    addCustomChapter
+  );
 
-    renderChapters();
+renderChapters();
 
-  }
+}
 );
 
 // =========================
-// ADD CUSTOM CHAPTER
+// CUSTOM CHAPTER
 // =========================
 
 function addCustomChapter() {
 
-  const name =
-    document
-      .getElementById(
-        "custom-chapter-name"
-      )
-      .value
-      .trim();
+const name =
+document
+.getElementById(
+"custom-chapter-name"
+)
+.value
+.trim();
 
-  const subject =
-    document
-      .getElementById(
-        "custom-chapter-subject"
-      )
-      .value;
+const subject =
+document
+.getElementById(
+"custom-chapter-subject"
+)
+.value;
 
-  if (!name) return;
+if (!name) return;
 
-  appData.chapters[name] = {
+appData.chapters[name] = {
 
-    subject,
+subject,
 
-    status: "weak",
+status: "weak",
 
-    pyq: 0,
+pyq: 0,
 
-    revision1: false,
+revision1: false,
+revision2: false,
+revision3: false,
 
-    revision2: false,
+priority:
+  "medium",
 
-    revision3: false,
+notes: "",
 
-    custom: true
+lastRevised:
+  null,
 
-  };
+custom: true
 
-  saveData();
+};
 
-  renderChapters();
+saveData();
 
-  document.getElementById(
-    "custom-chapter-name"
-  ).value = "";
+renderChapters();
+
+renderPrepIndex?.();
+
+renderStatusCounts?.();
+
+renderSubjectProgress?.();
 
 }
 
 // =========================
-// DELETE CUSTOM CHAPTER
+// DELETE
 // =========================
 
 function deleteCustomChapter(
-  chapter
+chapter
 ) {
 
-  if (
-    !appData.chapters[
-      chapter
-    ]?.custom
-  ) return;
+if (
+!appData.chapters[
+chapter
+]?.custom
+)
+return;
 
-  delete appData.chapters[
-    chapter
-  ];
+delete appData.chapters[
+chapter
+];
 
-  saveData();
+saveData();
 
-  renderChapters();
+renderChapters();
+
+renderPrepIndex?.();
 
 }
 
 // =========================
-// STATUS CHANGE
+// STATUS
 // =========================
 
 function updateStatus(
-  chapter,
-  value
+chapter,
+value
 ) {
 
-  appData.chapters[
-    chapter
-  ].status = value;
+appData.chapters[
+chapter
+].status =
+value;
 
-  saveData();
+saveData();
 
-  renderStatusCounts();
+renderPrepIndex?.();
 
-  renderPrepIndex();
+renderStatusCounts?.();
 
-  renderLowestPYQList();
+renderSubjectProgress?.();
+
+renderLowestPYQList?.();
 
 }
 
 // =========================
-// PYQ UPDATE
+// PYQ
 // =========================
 
 function updatePYQ(
-  chapter,
-  value
+chapter,
+value
 ) {
 
-  appData.chapters[
-    chapter
-  ].pyq =
-    parseInt(value);
+appData.chapters[
+chapter
+].pyq =
+parseInt(value);
 
-  saveData();
+saveData();
 
-  renderLowestPYQList();
+const label =
+document.getElementById(
+"pyq-${slugify( chapter )}"
+);
+
+if (label) {
+
+label.textContent =
+  `PYQ Progress: ${value}%`;
+
+}
+
+renderLowestPYQList?.();
+
+renderPrepIndex?.();
 
 }
 
 // =========================
-// REVISION TRACKING
+// PRIORITY
+// =========================
+
+function updatePriority(
+chapter,
+value
+) {
+
+appData.chapters[
+chapter
+].priority =
+value;
+
+saveData();
+
+}
+
+// =========================
+// NOTES
+// =========================
+
+function updateNotes(
+chapter
+) {
+
+const notes =
+prompt(
+"Chapter Notes",
+appData.chapters[
+chapter
+].notes || ""
+);
+
+if (
+notes === null
+)
+return;
+
+appData.chapters[
+chapter
+].notes =
+notes;
+
+saveData();
+
+}
+
+// =========================
+// REVISION
 // =========================
 
 function toggleRevision(
-  chapter,
-  round
+chapter,
+round
 ) {
 
-  const key =
-    "revision" + round;
+const key =
+"revision" +
+round;
 
-  appData.chapters[
-    chapter
-  ][key] =
-    !appData.chapters[
-      chapter
-    ][key];
+appData.chapters[
+chapter
+][key] =
+!appData.chapters[
+chapter
+][key];
 
-  saveData();
+appData.chapters[
+chapter
+].lastRevised =
+new Date()
+.toISOString()
+.split("T")[0];
 
-  renderChapters();
+saveData();
+
+renderChapters();
+
+renderPrepIndex?.();
 
 }
 
 // =========================
-// SEARCH + FILTER
+// SCORE
+// =========================
+
+function getChapterScore(
+chapter
+) {
+
+let score = 0;
+
+switch (
+chapter.status
+) {
+
+case "weak":
+  score += 25;
+  break;
+
+case "average":
+  score += 50;
+  break;
+
+case "strong":
+  score += 75;
+  break;
+
+case "mastered":
+  score += 100;
+  break;
+
+}
+
+score +=
+chapter.pyq * 0.4;
+
+if (
+chapter.revision1
+)
+score += 10;
+
+if (
+chapter.revision2
+)
+score += 10;
+
+if (
+chapter.revision3
+)
+score += 10;
+
+return Math.min(
+100,
+Math.round(score)
+);
+
+}
+
+// =========================
+// FILTER
 // =========================
 
 function shouldShowChapter(
-  chapterName,
-  data
+chapterName,
+data
 ) {
 
-  const search =
-    document
-      .getElementById(
-        "chapter-search"
-      )
-      ?.value
-      .toLowerCase() || "";
+const search =
+document
+.getElementById(
+"chapter-search"
+)
+?.value
+.toLowerCase() || "";
 
-  if (
-    search &&
-    !chapterName
-      .toLowerCase()
-      .includes(search)
-  ) {
-    return false;
-  }
+if (
+search &&
+!chapterName
+.toLowerCase()
+.includes(search)
+)
+return false;
 
-  if (
-    currentFilter !==
-      "all" &&
-    data.status !==
-      currentFilter
-  ) {
-    return false;
-  }
+if (
+currentFilter !==
+"all" &&
+data.status !==
+currentFilter
+)
+return false;
 
-  return true;
+return true;
 
 }
 
 // =========================
-// CHAPTER CARD
+// SLUG
+// =========================
+
+function slugify(text) {
+
+return text
+.replaceAll(
+" ",
+"-"
+)
+.replaceAll(
+"&",
+""
+);
+
+}
+
+// =========================
+// CARD
 // =========================
 
 function createChapterCard(
-  chapterName,
-  data
+chapterName,
+data
 ) {
 
-  return `
+const score =
+getChapterScore(
+data
+);
 
-  <div class="chapter-card ${data.status}">
+return `
 
-    <div class="chapter-title">
-      ${chapterName}
-    </div>
+  <div class="chapter-card ${data.status}"><div class="chapter-title">
 
-    <select
-      onchange="
-      updateStatus(
-      '${chapterName}',
-      this.value
-      )">
+  ${chapterName}
 
-      <option
-      ${
-        data.status==="weak"
-        ? "selected"
-        : ""
-      }>
-      weak
-      </option>
+</div>
 
-      <option
-      ${
-        data.status==="average"
-        ? "selected"
-        : ""
-      }>
-      average
-      </option>
+<select
+  onchange="
+  updateStatus(
+  '${chapterName}',
+  this.value
+  )">
 
-      <option
-      ${
-        data.status==="strong"
-        ? "selected"
-        : ""
-      }>
-      strong
-      </option>
+  <option ${
+    data.status==="weak"
+    ?"selected":""
+  }>
+  weak
+  </option>
 
-      <option
-      ${
-        data.status==="mastered"
-        ? "selected"
-        : ""
-      }>
-      mastered
-      </option>
+  <option ${
+    data.status==="average"
+    ?"selected":""
+  }>
+  average
+  </option>
 
-    </select>
+  <option ${
+    data.status==="strong"
+    ?"selected":""
+  }>
+  strong
+  </option>
 
-    <div class="pyq-label">
+  <option ${
+    data.status==="mastered"
+    ?"selected":""
+  }>
+  mastered
+  </option>
 
-      PYQ Progress:
-      ${data.pyq}%
+</select>
 
-    </div>
+<div
+class="pyq-label"
+id="pyq-${slugify(
+  chapterName
+)}">
 
-    <input
-      type="range"
-      min="0"
-      max="100"
-      value="${data.pyq}"
+  PYQ Progress:
+  ${data.pyq}%
 
-      oninput="
-      updatePYQ(
-      '${chapterName}',
-      this.value
-      )
-      "
-    >
+</div>
 
-    <div class="pyq-label">
+<input
+  type="range"
+  min="0"
+  max="100"
+  value="${data.pyq}"
 
-      Revision Rounds
+  oninput="
+  updatePYQ(
+  '${chapterName}',
+  this.value
+  )
+  "
+>
 
-    </div>
+<select
+  onchange="
+  updatePriority(
+  '${chapterName}',
+  this.value
+  )">
 
-    <div class="action-row">
+  <option ${
+    data.priority==="low"
+    ?"selected":""
+  }>
+  low
+  </option>
 
-      <button
-      onclick="
-      toggleRevision(
-      '${chapterName}',
-      1
-      )">
+  <option ${
+    data.priority==="medium"
+    ?"selected":""
+  }>
+  medium
+  </option>
 
-      ${
-        data.revision1
-        ? "✅ R1"
-        : "R1"
-      }
+  <option ${
+    data.priority==="high"
+    ?"selected":""
+  }>
+  high
+  </option>
 
-      </button>
+</select>
 
-      <button
-      onclick="
-      toggleRevision(
-      '${chapterName}',
-      2
-      )">
+<div
+class="pyq-label">
 
-      ${
-        data.revision2
-        ? "✅ R2"
-        : "R2"
-      }
+  Score:
+  ${score}/100
 
-      </button>
+</div>
 
-      <button
-      onclick="
-      toggleRevision(
-      '${chapterName}',
-      3
-      )">
+<div
+class="pyq-label">
 
-      ${
-        data.revision3
-        ? "✅ R3"
-        : "R3"
-      }
+  Last Revised:
 
-      </button>
+  ${
+    data.lastRevised
+    || "Never"
+  }
 
-    </div>
+</div>
 
-    ${
-      data.custom
-      ? `
-      <button
-      onclick="
-      deleteCustomChapter(
-      '${chapterName}'
-      )">
+<div
+class="action-row">
 
-      Delete
+  <button
+  onclick="
+  toggleRevision(
+  '${chapterName}',
+  1
+  )">
 
-      </button>
-      `
-      : ""
-    }
+  ${
+    data.revision1
+    ? "✅R1"
+    : "R1"
+  }
+
+  </button>
+
+  <button
+  onclick="
+  toggleRevision(
+  '${chapterName}',
+  2
+  )">
+
+  ${
+    data.revision2
+    ? "✅R2"
+    : "R2"
+  }
+
+  </button>
+
+  <button
+  onclick="
+  toggleRevision(
+  '${chapterName}',
+  3
+  )">
+
+  ${
+    data.revision3
+    ? "✅R3"
+    : "R3"
+  }
+
+  </button>
+
+</div>
+
+<button
+onclick="
+updateNotes(
+'${chapterName}'
+)">
+
+Notes
+
+</button>
+
+${
+  data.custom
+  ? `
+  <button
+  onclick="
+  deleteCustomChapter(
+  '${chapterName}'
+  )">
+
+  Delete
+
+  </button>
+  `
+  : ""
+}
+
+  </div>`;
+
+}
+
+// =========================
+// RENDER
+// =========================
+
+function renderChapters() {
+
+const container =
+document.getElementById(
+"chapter-grid"
+);
+
+if (!container)
+return;
+
+let html = "";
+
+const subjects = [
+"Physics",
+"Chemistry",
+"Mathematics"
+];
+
+subjects.forEach(
+subject => {
+
+  html += `
+
+  <div
+  style="
+  grid-column:1/-1;
+  margin-top:12px;
+  ">
+
+  <h2>
+  ${subject}
+  </h2>
 
   </div>
 
   `;
 
-}
+  Object.entries(
+    appData.chapters
+  )
 
-// =========================
-// SUBJECT GROUPING
-// =========================
+  .filter(
+    ([_,data]) =>
+      data.subject ===
+      subject
+  )
 
-function renderChapters() {
+  .forEach(
+    ([name,data]) => {
 
-  const container =
-    document.getElementById(
-      "chapter-grid"
-    );
+      if (
+        shouldShowChapter(
+          name,
+          data
+        )
+      ) {
 
-  if (!container)
-    return;
+        html +=
+          createChapterCard(
+            name,
+            data
+          );
 
-  let html = "";
-
-  const subjects = [
-    "Physics",
-    "Chemistry",
-    "Mathematics"
-  ];
-
-  subjects.forEach(
-    subject => {
-
-      html += `
-      <div
-      style="
-      grid-column:1/-1;
-      margin-top:15px;
-      ">
-
-      <h2>
-      ${subject}
-      </h2>
-
-      </div>
-      `;
-
-      Object.entries(
-        appData.chapters
-      )
-
-      .filter(
-        ([_, data]) =>
-          data.subject ===
-          subject
-      )
-
-      .forEach(
-        ([name, data]) => {
-
-          if (
-            shouldShowChapter(
-              name,
-              data
-            )
-          ) {
-
-            html +=
-              createChapterCard(
-                name,
-                data
-              );
-
-          }
-
-        }
-      );
+      }
 
     }
   );
 
-  container.innerHTML =
-    html;
+}
+
+);
+
+container.innerHTML =
+html;
 
 }
