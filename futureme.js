@@ -1,10 +1,29 @@
 // =========================
+// SAFE INITIALIZATION
+// =========================
+window.appData = window.appData || {};
+window.appData.futureNotes = window.appData.futureNotes || [];
+
+// Fallback functions if they aren't defined elsewhere
+window.saveData = window.saveData || function() {
+  localStorage.setItem('futureNotes', JSON.stringify(window.appData.futureNotes));
+};
+window.updateActivity = window.updateActivity || function() {
+  console.log("Activity updated");
+};
+
+// Load from localStorage if available
+if (localStorage.getItem('futureNotes')) {
+  window.appData.futureNotes = JSON.parse(localStorage.getItem('futureNotes'));
+}
+
+// =========================
 // FUTURE ME SYSTEM
 // =========================
-
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("add-future-note-btn")?.addEventListener("click", createFutureNote);
   renderFutureNotes();
+  renderMotivationCard(); // Also render motivation card on load
 });
 
 // =========================
@@ -16,7 +35,7 @@ function createFutureNote() {
 
   if (!message) return;
 
-  appData.futureNotes.push({
+  window.appData.futureNotes.push({
     id: Date.now(),
     title,
     message,
@@ -25,8 +44,8 @@ function createFutureNote() {
     opened: false
   });
 
-  updateActivity();
-  saveData();
+  window.updateActivity();
+  window.saveData();
   renderFutureNotes();
 }
 
@@ -34,8 +53,8 @@ function createFutureNote() {
 // DELETE NOTE
 // =========================
 function deleteFutureNote(id) {
-  appData.futureNotes = appData.futureNotes.filter(note => note.id !== id);
-  saveData();
+  window.appData.futureNotes = window.appData.futureNotes.filter(note => note.id !== id);
+  window.saveData();
   renderFutureNotes();
 }
 
@@ -43,13 +62,13 @@ function deleteFutureNote(id) {
 // EDIT NOTE
 // =========================
 function editFutureNote(id) {
-  const note = appData.futureNotes.find(n => n.id === id);
+  const note = window.appData.futureNotes.find(n => n.id === id);
   if (!note) return;
 
   note.title = prompt("Title", note.title) || note.title;
   note.message = prompt("Message", note.message) || note.message;
 
-  saveData();
+  window.saveData();
   renderFutureNotes();
 }
 
@@ -57,10 +76,9 @@ function editFutureNote(id) {
 // RANDOM MOTIVATION
 // =========================
 function getRandomFutureNote() {
-  if (appData.futureNotes.length === 0) return null;
-
-  const index = Math.floor(Math.random() * appData.futureNotes.length);
-  return appData.futureNotes[index];
+  if (window.appData.futureNotes.length === 0) return null;
+  const index = Math.floor(Math.random() * window.appData.futureNotes.length);
+  return window.appData.futureNotes[index];
 }
 
 // =========================
@@ -70,7 +88,7 @@ function renderMotivationCard() {
   const target = document.getElementById("motivation-card");
   if (!target) return;
 
-  const notes = appData.futureNotes.filter(n => !n.opened);
+  const notes = window.appData.futureNotes.filter(n => !n.opened);
   const note = notes.length 
     ? notes[Math.floor(Math.random() * notes.length)] 
     : getRandomFutureNote();
@@ -95,11 +113,11 @@ function renderFutureNotes() {
   if (!container) return;
 
   let html = "";
-  const sorted = [...appData.futureNotes].sort((a, b) => b.id - a.id);
+  const sorted = [...window.appData.futureNotes].sort((a, b) => b.id - a.id);
 
   sorted.forEach(note => {
     html += `
-    <div class="future-card">
+    <div class="future-card" style="border: 1px solid #ccc; padding: 10px; margin: 10px 0;">
       <h3>${note.title}</h3>
       <small>
         ${note.createdDate}
@@ -120,23 +138,23 @@ function renderFutureNotes() {
     html = `<div class="card">No Future Notes Yet</div>`;
   }
   
-  container.innerHTML = html; // Added missing DOM assignment
-} // <--- FIXED: Closed the renderFutureNotes function properly here
+  container.innerHTML = html;
+}
 
 // =========================
 // MARK OPENED
 // =========================
 function markFutureNoteOpened(id) {
-  const note = appData.futureNotes.find(n => n.id === id);
+  const note = window.appData.futureNotes.find(n => n.id === id);
   if (!note) return;
 
   note.opened = true;
-  saveData();
+  window.saveData();
   renderFutureNotes();
 }
 
 // =========================
-// GLOBAL SCOPE BINDINGS (Crucial for HTML onclicks)
+// GLOBAL SCOPE BINDINGS
 // =========================
 window.createFutureNote = createFutureNote;
 window.editFutureNote = editFutureNote;
