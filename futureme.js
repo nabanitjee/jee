@@ -323,7 +323,8 @@ saveData();
 renderFutureNotes();
 
 }
-){
+
+{
 
 const note =
 appData.futureNotes.find(
