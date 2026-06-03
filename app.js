@@ -75,37 +75,6 @@ btn.addEventListener(
 
 });
 
-document
-.querySelectorAll(
-".bottom-nav button"
-)
-.forEach(btn => {
-
-  btn.classList.remove(
-    "active-nav"
-  );
-
-});
-
-document
-.querySelectorAll(
-".bottom-nav button"
-)
-.forEach(btn => {
-
-btn.addEventListener(
-  "click",
-  () => {
-
-    openPage(
-      btn.dataset.page
-    );
-
-  }
-);
-
-});
-
 // =========================
 // DATE SYSTEM
 // =========================
