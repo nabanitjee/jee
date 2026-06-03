@@ -30,6 +30,15 @@ clat: [],
 
 futureNotes: [],
 
+dailyQuest: {
+  task1: "",
+  task2: "",
+  task3: "",
+  done1: false,
+  done2: false,
+  done3: false
+}
+
 streak: 0,
 
 lastActivity: null
