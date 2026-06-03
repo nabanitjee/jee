@@ -614,6 +614,60 @@ ${
 
 }
 
+function renderFilterCounts() {
+
+  const chapters =
+    Object.values(
+      appData.chapters
+    );
+
+  const weak =
+    chapters.filter(
+      ch => ch.status === "weak"
+    ).length;
+
+  const average =
+    chapters.filter(
+      ch => ch.status === "average"
+    ).length;
+
+  const strong =
+    chapters.filter(
+      ch => ch.status === "strong"
+    ).length;
+
+  const mastered =
+    chapters.filter(
+      ch => ch.status === "mastered"
+    ).length;
+
+  document.querySelector(
+    '[data-filter="all"]'
+  ).textContent =
+    `All (${chapters.length})`;
+
+  document.querySelector(
+    '[data-filter="weak"]'
+  ).textContent =
+    `Weak (${weak})`;
+
+  document.querySelector(
+    '[data-filter="average"]'
+  ).textContent =
+    `Average (${average})`;
+
+  document.querySelector(
+    '[data-filter="strong"]'
+  ).textContent =
+    `Strong (${strong})`;
+
+  document.querySelector(
+    '[data-filter="mastered"]'
+  ).textContent =
+    `Mastered (${mastered})`;
+
+}
+
 // =========================
 // RENDER
 // =========================
@@ -689,6 +743,8 @@ subject => {
 }
 
 );
+
+renderFilterCounts();
 
 container.innerHTML =
 html;
