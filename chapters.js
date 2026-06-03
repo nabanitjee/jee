@@ -746,6 +746,6 @@ subject => {
 
 container.innerHTML = html;
 
-renderFilterCounts();
+renderFilterCounts(console.log("Filter count running"););
 
 }
