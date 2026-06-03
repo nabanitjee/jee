@@ -422,6 +422,11 @@ function renderClat() {
     `;
 
   }
+
+  container.innerHTML =
+    html;
+
+}
 function getBestClatDay() {
 
 if (
@@ -440,10 +445,5 @@ best.total
 : best
 
 );
-
-}
-
-  container.innerHTML =
-    html;
 
 }
